@@ -1,0 +1,83 @@
+---------------
+2.1, unreleased
+---------------
+
+- Incorporated Lew's changes for reading simulated data files.
+- Cleaning up on CalHistograms.cc, for more readable code.
+  All spectra now are generated with the Fill(specName,...) commands.
+- Includes gamma ray tracking through GRETINA.
+
+---------------
+2.0, 2012-04-23
+---------------
+
+- possiblity to gate on XFP instead of OBJ
+- time dependent corrections for OBJ, XFP, TACOBJ, TACXFP, CRDC Y, and IC
+  script to generate correction factors: timecorrections.C
+  script template to generate event numbers: evtnr.C
+- corrections for constant shift of Y
+- Gretina ATA and BTA corrections
+- avoided gretina events of length 0
+- run number correct
+- fixed bugs in Doppler correction
+- possibility to read simulated data
+- ScalerAnalysis handles now many files
+- new script to fit with mouse clicks, fitwindow.C
+  usage:
+  root [] .L fitwindow.C+
+  root [] window()
+  root [] xyz->Draw()
+  now click with the middle mouse two or three markers.
+  if two, the fit is done between the two, if three the middle marker is used as a start value for the peakposition.
+  type "Fit()" in the shell, or just f while the mouse is still over the canvas
+- Makefiles for Ubuntu and Mac provided
+- data taken after Jan 2013 has a different type of scaler data. new version supports botht the old and the new type.
+  
+- Tracking:
+  new classes for tracked data GretinaTrack.hh
+  TrackSettings inherits from Settings, contain informtaion used for the tracking.
+  Tracking class which does all the work, similar to Calibration and UnpackedEvent
+  Track main program, makes tracked tree and some histograms
+  including new doppler correction and new map calculation if desired
+
+- available on request:
+  addback for hodoscope
+  delayed coincidence analysis software
+  other stuff for the hodoscope, calibration, efficiency, simulations
+
+---------------
+1.2, 2012-12-13
+---------------
+
+All quantities are now in keV, mrad and mm
+Support for Hodoscope, Galotte and OBJ PIN detectors
+The scaler values read from the Global.dat file overflow at 24 bit, the values stored in the sc scaler tree are now corrected for overlfows 
+New class "RunInfo", stores important information about the run, like detector efficiencies, lifetime and counters
+RunInfo and Settings are written to the file
+Calculate can split up the tree into one tree per cut, this allows for faster processing afterwards.
+  new flags" "-c cutfilename -t TAC/TDC"
+Standalone TreeSplitter program included, needs cuts, produces one tree per cut
+Cal_histos can read individual trees. Usage with cuts still works as before
+  new flag: "-tn treename" name of the tree to be analyzed. 
+New addback type clustering, this clusters interaction points which have a maximum angle distance from each other
+Fixed various small bugs
+
+---------------
+1.1, 2012-09-11
+---------------
+
+RawHistograms.cc and CalHistograms.cc modified to be more readable and more easily modified when adding new histograms.
+Bundled GEB_HFC in with the current executables.
+Implemented recalibration of mode 2 data on a crystal by crystal basis, in case the original calibrations were incorrect.
+Added support of LaBr detectors in the S800 stream, as was added for the e11017 experiment.
+GretinaCalc now has the time of the detection relative to the s800, as read from the card 29 data.
+Slightly modified names of settings in the settings file, so that the effect of settings is more obvious from the name.
+  Old names are still read if new names are not found, so that backwards compatibility of settings files is maintained.
+PadCal now reads the names of spectra for use in CRDC calibration, rather than using hardcoded names of the outgoing cuts.
+Cal_histos now checks to make sure that a settings file was given, prevented segfault otherwise.
+
+---------------
+1.0, 2012-08-21
+---------------
+
+First numbered version.

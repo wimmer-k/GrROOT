@@ -1,0 +1,423 @@
+Documentation of GrROOT as of 2012-07-31
+
+To check out the latest version of the use the following command.
+This will make the folder "GrROOT" within the current directory and fill it with the latest version.
+
+svn checkout svn+ssh://USERNAME@element/projects/gretina/GrROOT/svn/trunk/GrROOT
+
+Alternatively, use tar to unpack the GrROOT tarball.
+
+Once you have the GrROOT folder, use the following commands.
+
+1. "./install.sh"
+   This will make the env.sh script pointing to the current directory and perform first-time setup tasks.
+2. "source env.sh"
+   This must be run each time before the program is either run or compiled.
+   This sets the PATH variable to include the appropriate bin directory, allowing for multiple
+    versions to be modified and coexist on the same experimental account.
+3. To compile, use "make" from within the "src" directory.
+
+
+
+GrROOT:
+  Purpose:
+    Unpacks data.
+    Additionally, if requested, writes out raw data,
+                                creates histograms from raw data,
+                                calibrates data,
+                                writes out calibrated data,
+                                creates histograms from raw data.
+        
+  Usage:
+    GrROOT -i <inputfile> -o <outputfile> -s <settingsfile> <options>
+
+    options:
+      -rh:
+         Write out the histograms from raw data.
+         Note that in mode 2 data, calibrations are already applied in the decomposition,
+              so the "raw" data is not completely raw.
+      -rt:
+         Write out the raw unpacked tree from data.
+      -ch:
+         Write out calibrated histograms.
+      -ct:
+         Write out the calibrated tree.
+
+      -lb <int n>:
+         Stop reading file after n buffers.
+      -d <int n>:
+         Print out current progress, write data to file after every n buffers.
+
+  File Formats:
+    
+    Input:
+      A file with buffers such as the output from the decomposition.
+      Global.dat, GlobalRaw.dat, or the output from GEB_HFC.
+
+      During event building, the program assumes that the buffers are in time order.
+      It will continue, but complain, if timestamps are not in order.
+
+    Output:
+      A root file, containing histograms, data trees, or both, depending on the options passed.
+
+      -rt
+        A tree, gtr, with three branches:
+          gretina
+          s800
+          mode3Event
+        More information below on the format of these branches.
+      -ct
+        A tree, ctr, with three branches:
+          gretinacalc
+          s800calc
+          mode3calc
+        More information below on the format of these branches.
+      -rh
+        Various histograms related to the raw tree.
+        These are defined in RawHistograms.cc
+        These change frequently, so documentation would become outdated too often for documentation to be useful.
+        To see what histograms are filled, with what, and when, please refer to RawHistograms.cc
+      -ch
+        Various histograms related to the calibrated tree.
+        These are defined in CalHistograms.cc
+        These change frequently, so documentation would become outdated too often for documentation to be useful.
+        To see what histograms are filled, with what, and when, please refer to CalHistograms.cc
+
+
+
+
+
+Histos:
+  Purpose:
+    From a raw tree, create histograms.
+
+  Usage:
+    Histos -i <inputfile> -o <outputfile> -s <settingsfile> <options>
+
+    options:
+      -n <int n>:
+        Stop histogramming after n events have been read.
+      -v <int v>:
+        Set the verbosity level to v.
+        Higher verbosity level prints out additional messages
+
+  File Formats:
+
+    Input:
+      Histos expects as input the output of GrROOT when run with the -rt flag.
+      A root file with three branches:
+        gretina
+        s800
+        mode3calc
+
+    Output:
+      Various histograms related to the raw tree.
+      These are defined in RawHistograms.cc
+      These change frequently, so documentation would become outdated too often for documentation to be useful.
+      To see what histograms are filled, with what, and when, please refer to RawHistograms.cc
+
+
+
+
+
+Calculate:
+  Purpose:
+    From a raw tree, create a calibrated tree
+
+  Usage:
+    Calculate -i <inputfile> -o <outputfile> -s <settingsfile>
+
+  File Formats:
+    
+    Input:
+      Histos expects as input the output of GrROOT when run with the -rt flag.
+      A root file with three branches:
+        gretina
+        s800
+        mode3calc
+
+    Output:
+        A tree, ctr, with three branches:
+          gretina
+          s800calc
+          mode3calc
+
+
+
+
+
+Cal_histos:
+  Purpose:
+    From a raw tree, create histograms.
+
+  Usage:
+    Cal_histos -i <inputfile> -o <outputfile> -s <settingsfile> <options>
+
+    options:
+      -t <int t>:
+        If t==0, use the TAC for timing.
+        If t==1, use the TDC for timing.
+      -c <string cutfile>
+        Use cutfile to find 2D gates for incoming and outgoing particle ID.
+        Expects cutfile to be a root file containing 2D gates on 
+      -n <int n>:
+        Stop histogramming after n events have been read.
+      -v <int v>:
+        Set the verbosity level to v.
+        Higher verbosity level prints out additional messages
+
+  File Formats:
+
+    Input:
+      Histos expects as input the output of GrROOT when run with the -ct flag, or the output of Calculate
+      A root file with three branches:
+        gretina
+        s800
+        mode3calc
+
+    Output:
+      Various histograms related to the calibrated tree.
+      These are defined in CalHistograms.cc
+      These change frequently, so documentation would become outdated too often for documentation to be useful.
+      To see what histograms are filled, with what, and when, please refer to CalHistograms.cc
+
+
+RawEventLoopBase
+CalEventLoopBase
+  Purpose:
+    Provide a base program with an event loop for experimenters to modify.
+    These programs as they are in the repository do nothing.
+    They read a file, loop over its events, then close.
+    These programs are to be quickly modified for temporary analysis.
+
+  Usage:
+    <Prog_name> <inputfile>
+
+  File Formats:
+    Input:
+      RawEventLoopBase expects as input the output of GrROOT when run with the -rt flag.
+      CalEventLoopBase expects as input the output of GrROOT when run with the -ct flag.
+
+    Output:
+      None
+
+
+
+Parameters in root trees
+
+  In general, there are three data structures, each with a raw and calibrated version.
+  The raw version aims to have only the data as read from the data file.
+  The calibrated version aims to have only the information from which one extracts final information.
+
+  All of the data read out regarding the S800
+  s800:
+    fTof
+      frf
+      fobj
+      fxfp
+      ftar
+      ftac_obj
+      ftac_xfp
+    fTrigger
+      fregistr
+      fs800
+      fexternal1
+      fexternal2
+      fsecondary
+    fScintillator
+      fID
+      fde_up
+      fde_down
+      ftime_up
+      ftime_down
+    fIonChamber
+      vector<int> fchannels
+      vector<float> fdata
+    fCrdc[2], fTCrdc[2]
+      fID
+      fanode
+      ftac
+      fwidth
+      vector<Short_t> fdata
+      vector<Short_t> fsample
+      vector<Short_t> fchannels
+    fTPpac
+      fID
+      fwidth
+      vector<Short_t> fdata
+      vector<Short_t> fsample
+      vector<Short_t> fchannels
+    fts------------------The timestamp as read from the GEB header
+    fits-----------------The timestamp as read from the non-header data.
+                         Since the GEB header is made from the data in the struct, fits==ftimestamp
+    fevtnr---------------The S800 event number as read from the non-header data.
+
+
+
+  This is the main data structure for mode2 gretina data.
+  gretina:
+    fhitpattern----------An integer from 0 to 2^31.
+                         Each bit is 0 if that hole reported a detection in the event, or 1 otherwise.
+    fmult----------------The number of crystals that fired during this event.
+    fcrystals
+      fholenum-------------The number of the hole of the detector. (1-30)
+      fcrystalid-----------The number of the crystal in the detector. (0-3)
+      fen------------------The total energy deposited in the detector. (keV)
+      ftrig_time-----------Empty
+      ft0------------------According to Mario, the cfd time as calculated by the decomposition.
+      fcfd-----------------Empty
+      fbaseline------------The baseline for the decomposition.
+      fmult----------------The number of interaction points in the crystal.
+      fipoints
+        fen------------------The energy in each particular segment.
+        fPosition------------The position, relative to the center of the crystal, of the interaction
+        fseg-----------------The number of the segment in which the interaction occurred.  (0-35)
+        fseg_en--------------The energy deposited in the segment.  
+                             (If multiple IPs in a crystal, both will report the full amount.)
+      fmaxip-------------The position in fipoints of the IP with the most deposited energy.
+      fmaxen-------------The energy of the segment with the most deposited energy.
+      fcore_e------------An array of 4 floats as reported from the core trace.
+                         Position 0 is always the currently selected core trace.
+                         The remaining core traces are in positions 1-3 in ascending order.
+      ftimestamp---------The timestamp as read from the GEB header.
+      fits---------------The timestamp as read from the struct.
+                         Since the GEB header is made from the data in the struct, fits==ftimestamp
+      fprestep-----------Diagnostic added by Mario.
+      fpoststep----------Diagnostic added by Mario.
+      ferror-------------The error code reported in the struct.
+
+
+
+  This is the main data structure for mode3 gretina data.
+  In addition, card29 shows up here, since it appears in data as a mode3 entry
+  mode3Event:
+    fmult--------------The number of hits in the event.
+    fctr
+    fhit
+      fmult--------------The number of traces in the hit.
+      fts----------------The timestamp of the hit
+      fcore--------------The location of the core trace in the vector ftrace
+      ftrace
+        flength------------The number of points in the trace.
+        fboard-------------The board of the trace.
+        fchn---------------The channel of the trace.
+        fslot
+        fcrystal-----------The crystal in which the hit occurred. (0-3)
+        fhole--------------The hole in which the hit occurred.  (1-30, 31 for card29 entries)
+        fLED_ts
+        fen
+        fen_sgin
+        fpileup
+        fCFD_ts
+        fCFD
+        ftrace
+        fts
+        ftdiff
+        fcore
+        flabren
+        flabrtrace
+
+
+
+  The information about the calibrated s800 data.
+  Parameters marked with a ? with be filled only if S800_DETAILED_TREE is set when compiling GrROOT.
+  This is set in the Makefile.  (Make-clean, then make again for it to take effect.)
+       NOTE: You will still be able to plot these parameters in root, but they will have bogus numbers.
+  s800calc:
+    fPAD
+      fx
+      fy
+      fid
+      ? vector<Float_t> fcal
+      ? vector<Int_t> fchan
+      ? ftac
+      ? fmaxpad
+      ? vector<Float_t> fpadmax
+      ? fx_gravity
+      ? fx_fit
+    fPPAC
+      fx
+      fy
+      fid
+      ? vector<Short_t> fxstrip
+      ? vector<Short_t> fystrip
+      ? fxmult
+      ? fymult
+      ? fxmax
+      ? fymax
+    fIC
+      ? vector<Float_t> fcal
+      ? vector<Int_t> fchan
+      fsum
+      fde
+    fTOF
+      frf
+      fobj
+      frfc
+      fobjc
+      fxfpc
+      ftac_obj
+      ftac_xfp
+      ftac_objc
+      ftac_xfpc
+    fSCINT
+      ftime
+      fde
+      ? ftimeup
+      ? ftimedown
+      ? fdeup
+      ? fdedown
+    fTRACK
+      fxfp
+      fafp
+      fyfp
+      fbfp
+      fata
+      fyta
+      fbta
+      fdta
+      fazita
+      fscatter
+      fptot
+      fppar
+      fptra
+      fetot
+    fIITRACK
+      fxii
+      faii
+      fyii
+      fbii
+      fazita
+      fscatter
+    ftimes800
+
+
+  gretinacalc
+    fmult---------------------The multiplicity of the hits without addback
+                              Equal to fcrystals.fmult in the raw tree
+    fmult_ab------------------The multiplicity of the hits with addback
+    fhits, fhits_ab
+      fholenum------------------The hole number (1-30) of the hit.
+      fcrystal------------------The crystal number (0-3) of the hit
+      fen-----------------------The energy (keV) of the hit
+      fDCen---------------------The doppler-corrected energy (keV) of the hit
+                                Uses the beta as given in the settings file.
+                                If a map is present and S800 data is present in the event,
+                                 the angle and dta from the tracking is used.
+                                Otherwise, assumes uniform velocity along the beam axis for doppler correction.
+      ft0-----------------------The time of gretina.
+      ftimestamp----------------The timestamp of the gretina hit
+      fposition-----------------The position (TVector3) of the gretina hit, relative to the center of gretina.
+    
+
+  The mode3 data with some calibrations applied.
+  Card29 data does not show up here, since it is 
+  In Mode2 data (Global.dat), these values should never be filled.
+  mode3calc
+    fmult-------------------The multiplicity of the hits without addback.
+    fmult_ab----------------The multiplicity of the hits with addback.
+    fhits, fhits_ab
+      fen---------------------The sum of the energies from all crystals combined into the hit.
+      fLargestEnergy----------The largest energy from a single crystal contained in the hit.
+      ftime-------------------The timestamp of the hit.  (That of the largest single crystal energy.)
+      fid---------------------The ID of the hit.  (That of the largest single crystal energy.)

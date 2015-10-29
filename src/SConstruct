@@ -1,0 +1,82 @@
+# -*- python -*-
+
+import os
+
+debug = '-g' #Change to '-g', '-p', or '-pg' to add these options.
+switch = '-DS800_DETAILEDTREE -USPECTCL_MODE'
+
+#Make the builder for the root dictionaries.
+def dict_emitter(target,source,env):
+    name = str(target[0])
+    return ([name+'Dictionary.cc',name+'Dictionary.h'],
+            [name+'.hh',name+'LinkDef.h'])
+dictBld = Builder(action = Action('rootcint -f $TARGET -c $SWITCH $SOURCES',
+                                  'Building $TARGET ...'),
+                  emitter = dict_emitter)
+
+#Set up the compiliation environments.
+env = Environment(ENV=os.environ)
+env.Append(BUILDERS = {'RootDict':dictBld})
+env.Append(LIBPATH = '.')
+env.Append(CPPPATH = '.')
+env.ParseConfig('root-config --libs --glibs --cflags')
+env.Append(CCFLAGS = Split('-pedantic -Wall -Wno-long-long -O3 -D_FILE_OFFSET_BITS=64'))
+env['SWITCH'] = switch
+env['CXXCOMSTR'] = 'Compiling object $TARGETS ...'
+env['SHCXXCOMSTR'] = 'Compiling shared object $TARGETS ...'
+env['LINKCOMSTR'] = 'Linking $TARGETS ...'
+if debug:
+    env.Append(CCFLAGS = Split(debug))
+if switch:
+    env.Append(CCFLAGS = Split(switch))
+libenv = env.Clone()
+env.Append(LIBS = ['m','Spectrum',
+                   'CommandLineInterface','Gretina','S800','Scaler','RunInfo',
+                   'Fit','Settings','Peaks'])
+
+#Compile the root dictionaries.
+dicts = ['Settings','Gretina','Trace','S800','Scaler',#'TrackSettings',
+         'RunInfo','S800Calc','Fit','Peaks','Mode3Calc','GretinaCalc','GretinaTrack']
+dicts = [libenv.RootDict(dict) for dict in dicts]
+
+#Make the shared libraries.
+libs = []
+libs.append(libenv.SharedLibrary('Peaks.cc'))
+libs.append(libenv.SharedLibrary('CommandLineInterface.cc'))
+libs.append(libenv.SharedLibrary(['Settings.cc','SettingsDictionary.cc']))
+libs.append(libenv.SharedLibrary(['Gretina.cc','GretinaDictionary.cc',
+                                  'GretinaCalc.cc','GretinaCalcDictionary.cc',
+                                  'GretinaTrack.cc','GretinaTrackDictionary.cc',
+                                  'Mode3Calc.cc','Mode3CalcDictionary.cc',
+                                  'Trace.cc','TraceDictionary.cc']))
+libs.append(libenv.SharedLibrary(['S800.cc','S800Dictionary.cc',
+                                  'S800Calc.cc','S800CalcDictionary.cc']))
+libs.append(libenv.SharedLibrary(['Scaler.cc','ScalerDictionary.cc']))
+libs.append(libenv.SharedLibrary(['RunInfo.cc','RunInfoDictionary.cc']))
+libs.append(libenv.SharedLibrary(['Fit.cc','FitDictionary.cc']))
+hfc = libenv.SConscript('hfc/SConstruct')
+
+#Make the executables.
+stdfiles = ['UnpackedEvent.cc',
+            'Calibration.cc',
+            'RawHistograms.cc',
+            'CalHistograms.cc',
+            'SimHistograms.cc',
+            'Tracking.cc']
+progs = ['GrROOT.cc','Calculate.cc','SimCalculate.cc','Histos.cc','Cal_histos.cc','Sim_histos.cc',
+         'ScalerAnalysis.cc','RawEventLoop.cc','CalEventLoop.cc','GammaCal.cc',
+         'ICCal.cc','PadCal.cc']
+progs = [env.Program([prog]+stdfiles) for prog in progs]
+progs.append(env.Program(['Track.cc','GretinaCalc.cc','GretinaTrack.cc',
+                          'Calibration.cc','Tracking.cc']))
+progs.append(env.Program(['TreeSplitter.cc','S800.cc','S800Calc.cc',
+                          'Gretina.cc','GretinaCalc.cc','RunInfo.cc',
+                          'Trace.cc','Mode3Calc.cc','Scaler.cc']))
+env.Requires(progs,libs+[hfc])
+
+#Install to the appropriate directory.
+Install(os.environ['GRROOT_BINDIR'],progs)
+Install(os.environ['GRROOT_BINDIR'],hfc)
+Alias('libs',Install(os.environ['GRROOT_LIBDIR'],libs))
+
+Default('..')

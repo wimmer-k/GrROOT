@@ -1,0 +1,4 @@
+# -*- python -*-
+
+hfc = Program(['GEB_HFC.cpp','HFC.cpp'])
+Return('hfc')
