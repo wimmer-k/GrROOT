@@ -10,7 +10,7 @@
 ////////////                 the gretina/S800 experimental setup.
 ////////////                          
 ////////////          Current Maintainers:
-////////////                 Kathrin Wimmer  (wimme1k@cmich.edu)
+////////////                 Kathrin Wimmer  (wimmer@phys.s.u-tokyo.ac.jp)
 ////////////                 Eric Lunderberg (lunderberg@nscl.msu.edu)
 ////////////
 ////////////          Distribution:

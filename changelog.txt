@@ -1,8 +1,9 @@
 ---------------
-2.1, unreleased
+3.0, 2015-12-15
 ---------------
 
 - Incorporated Lew's changes for reading simulated data files.
+  new Programs SimCalculate reads the simulated data and returns a tree with the same structure as the data
 - Cleaning up on CalHistograms.cc, for more readable code.
   All spectra now are generated with the Fill(specName,...) commands.
 - Includes gamma ray tracking through GRETINA.

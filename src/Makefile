@@ -43,7 +43,7 @@ O_FILES = UnpackedEvent.o \
 
 TO_FILES = Calibration.o Tracking.o
 
-all: libs HFC AnalysisProgs SimulationProgs CalibrationProgs MiscProgs
+all: libs HFC AnalysisProgs SimulationProgs CalibrationProgs MiscProgs Track
 
 libs: libSettings.so libGretina.so libS800.so libScaler.so libRunInfo.so libCommandLineInterface.so libPeaks.so libFit.so
 
@@ -157,5 +157,5 @@ CommandLineInterface.o: CommandLineInterface.cc CommandLineInterface.hh | libFit
 clean:
 	@echo Cleaning up
 	@rm -f $(BIN_DIR)/* $(LIB_DIR)/* *.o *Dictionary.cc *Dictionary.h lib*.so *.d
-	@rm -f Calculate CalEventLoop Cal_histos GammaCal GrROOT Histos ICCal PadCal RawEventLoop ScalerAnalysis SimCalculate Sim_histos TreeSplitter MakeMode2
+	@rm -f Calculate CalEventLoop Cal_histos GammaCal GrROOT Histos ICCal PadCal RawEventLoop ScalerAnalysis SimCalculate Sim_histos TreeSplitter MakeMode2 Track
 	@cd hfc; make clean

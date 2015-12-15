@@ -8,9 +8,9 @@
 ////////////          Purpose:
 ////////////                   To assist in the analysis of data from
 ////////////                 the gretina/S800 experimental setup.
-////////////
+////////////                          
 ////////////          Current Maintainers:
-////////////                 Kathrin Wimmer  (wimme1k@cmich.edu)
+////////////                 Kathrin Wimmer  (wimmer@phys.s.u-tokyo.ac.jp)
 ////////////                 Eric Lunderberg (lunderberg@nscl.msu.edu)
 ////////////
 ////////////          Distribution:
@@ -19,7 +19,7 @@
 ////////////                 email one of the maintainers for the download link.
 ////////////                   This allows us to keep track of who has the software,
 ////////////                 and properly distribute updates and bug fixes.
-////////////
+////////////                 
 ////////////          Suggestions:
 ////////////                   We view the development of the software as a collaborative
 ////////////                 effort, and as such, welcome and appreciate any suggestions
